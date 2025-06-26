@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+  <meta charset="UTF-8">
+  <title>ಹಾಲು & ಮೊಸರು ಬಿಲ್ ಕ್ಯಾಲ್ಕುಲೇಟರ್</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    h2 {
+      color: #333;
+    }
+    label {
+      font-weight: bold;
+    }
+    .product {
+      margin-bottom: 15px;
+    }
+    input {
+      padding: 5px;
+      margin-left: 10px;
+      width: 100px;
+    }
+    .total {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h2>ಹಾಲು ಮತ್ತು ಮೊಸರು ಬಿಲ್ಲಿಂಗ್ ಕ್ಯಾಲ್ಕುಲೇಟರ್</h2>
+
+  <div class="product">
+    <label for="milk1l">1L Blue Milk Pack:</label>
+    <input type="number" id="milk1l" onfocus="speakKannada('1 liter Blue milk packet yasthu')">
+  </div>
+
+  <div class="product">
+    <label for="milk200">200 ml Milk Pack:</label>
+    <input type="number" id="milk200" onfocus="speakKannada('ಚಿಕು packet ಹಾಲು yasthu')">
+  </div>
+
+  <div class="product">
+    <label for="curd200">200 ml Curd Pack:</label>
+    <input type="number" id="curd200" onfocus="speakKannada('ಚಿಕು packet ಮೊಸರು yasthu')">
+  </div>
+
+  <div class="product">
+    <label for="orange">500 ml Orange Milk (Crates):</label>
+    <input type="number" id="orange" step="0.1" onfocus="speakKannada('ಅರ್ಧ liter orange ಹಾಲು yasth Crate')">
+  </div>
+
+  <div class="product">
+    <label for="green">500 ml Green Milk (Crates):</label>
+    <input type="number" id="green" step="0.1" onfocus="speakKannada('ಅರ್ಧ liter green ಹಾಲು yasth Crates')">
+  </div>
+
+  <div class="product">
+    <label for="curd500">500 ml Curd (Crates):</label>
+    <input type="number" id="curd500" step="0.1" onfocus="speakKannada('ಅರ್ಧ liter ಮೊಸರು yasth Crates')">
+  </div>
+
+  <div class="total" id="total"></div>
+
+  <!-- Two Buttons -->
+  <button onclick="calculateTotal()">ಲೆಕ್ಕ ಹಾಕಿ (Calculate)</button>
+  <button onclick="sendBill()">ಬಿಲ್ ಕಳುಹಿಸಿ (Send Bill)</button>
+
+  <script>
+    const prices = {
+      milk1l: 45,
+      milk200: 12.6,
+      curd200: 12.6,
+      orange: 53,
+      green: 51,
+      curd500: 54
+    };
+
+    function speakKannada(text) {
+      const msg = new SpeechSynthesisUtterance(text);
+      msg.lang = "kn-IN";
+      window.speechSynthesis.speak(msg);
+    }
+
+    function calculateTotal() {
+      const date = new Date().toLocaleDateString('kn-IN');
+      let total = 0;
+      let bill = `🏪 ಬಿಲ್ ದಿನಾಂಕ: ${date}\n`;
+
+      const ids = ["milk1l", "milk200", "curd200", "orange", "green", "curd500"];
+      ids.forEach(id => {
+        const val = parseFloat(document.getElementById(id).value) || 0;
+        let subTotal = 0;
+        if (["orange", "green", "curd500"].includes(id)) {
+          subTotal = val * 12 * prices[id];
+          bill += `${idLabel(id)}: ${val} ಕ್ರೆಟ್ಸ್ × 12L × ₹${prices[id]} = ₹${subTotal.toFixed(2)}\n`;
+        } else {
+          subTotal = val * prices[id];
+          bill += `${idLabel(id)}: ${val} ಪ್ಯಾಕ್ × ₹${prices[id]} = ₹${subTotal.toFixed(2)}\n`;
+        }
+        total += subTotal;
+      });
+
+      bill += `\nಒಟ್ಟು ಮೊತ್ತ: ₹${total.toFixed(2)}`;
+      document.getElementById("total").innerText = bill;
+
+      // Save to global for sending
+      window.lastBill = bill;
+    }
+
+    function sendBill() {
+      const bill = window.lastBill || "ಮೊದಲು ಲೆಕ್ಕ ಹಾಕಿ (Please click Calculate first)";
+      const msg = encodeURIComponent(bill);
+      const milkmanNumber = "918139918124"; // Change to real number
+      const url = `https://wa.me/${milkmanNumber}?text=${msg}`;
+      window.open(url, '_blank');
+    }
+
+    function idLabel(id) {
+      const labels = {
+        milk1l: "1 ಲೀಟರ್ ಹಾಲು",
+        milk200: "200 ಮಿಲಿ ಹಾಲು",
+        curd200: "200 ಮಿಲಿ ಮೊಸರು",
+        orange: "500 ಮಿಲಿ ಕಿತ್ತಳೆ ಹಾಲು",
+        green: "500 ಮಿಲಿ ಹಸಿರು ಹಾಲು",
+        curd500: "500 ಮಿಲಿ ಮೊಸರು"
+      };
+      return labels[id] || id;
+    }
+  </script>
+</body>
+</html>
